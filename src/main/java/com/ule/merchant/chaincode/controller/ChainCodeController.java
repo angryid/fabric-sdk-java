@@ -43,7 +43,7 @@ public class ChainCodeController {
             request.setChainCodeType("GO_LANG");
             request.setChainCodeVersion("1");
             request.setChaincodeendorsementpolicy(new FileInputStream(new File("chaincode/chaincodeendorsementpolicy.yaml")));
-            request.setChainCodeInputStream(new ByteArrayInputStream(Utils.generateTarGz(new File("chaincode/ulechaincode"), "ule.com/gocc", null)));
+            request.setChainCodeInputStream(new ByteArrayInputStream(Utils.generateTarGz(new File("chaincode/input"), "ule.com/gocc", null)));
             request.setInitParams(new String[]{});
             return chainCodeInterface.deployAndInitChaincodeIfRequired(request);
         } catch (Exception e) {

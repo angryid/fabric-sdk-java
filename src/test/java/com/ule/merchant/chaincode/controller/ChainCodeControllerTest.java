@@ -34,7 +34,7 @@ public class ChainCodeControllerTest {
     @Test
     public void registerUserIfRequired() {
         RegisterUserChainCodeRequest request = new RegisterUserChainCodeRequest();
-        request.setUserName("sadfsdfaa");//XRDllJRgZHVR
+        request.setUserName("sadfsdfaa");//MxxHSDNcmOnM
         request.setAffiliation("org1.department1");
         request.setMspId("Org1MSP");
 
@@ -45,7 +45,7 @@ public class ChainCodeControllerTest {
         System.out.println("注册用户响应 res=" + JSON.toJSONString(res));
     }
 
-    @Test
+    /*@Test
     public void deployAndInitChaincodeIfRequired() throws IOException {
         DeployAndInitChainCodeRequest request = new DeployAndInitChainCodeRequest();
         request.setChainCodeName("dsfafds");
@@ -61,7 +61,7 @@ public class ChainCodeControllerTest {
 
         BaseChainCodeResponse res = restTemplate.postForObject(host + "/deployAndInit", request, BaseChainCodeResponse.class);
         System.out.println("部署链码响应 res=" + JSON.toJSONString(res));
-    }
+    }*/
 
     @Test
     public void deployAndInitMerchantContractChaincodeIfRequired() {

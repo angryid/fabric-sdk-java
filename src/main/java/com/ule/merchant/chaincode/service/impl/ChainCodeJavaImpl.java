@@ -52,7 +52,7 @@ public class ChainCodeJavaImpl implements IChainCodeInterface {
     @PostConstruct
     public void init() {
         //加载配置文件 ...
-        config = PropertyUtil.get("/chaincode/fabric-config.properties");
+        config = PropertyUtil.get("/fabric-config.properties");
         Assert.notEmpty(config, "fabric-config配置不能为空");
         System.setProperty(Config.GENESISBLOCK_WAIT_TIME, config.getProperty("fabric.genesisblock.wait.time"));
         waitTime = Integer.parseInt(config.getProperty("fabric.wait.time"));
