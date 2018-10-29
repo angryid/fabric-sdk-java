@@ -214,7 +214,8 @@ public class ChainCodeJavaImpl implements IChainCodeInterface {
                 }
             }
             log.info("执行交易成功，successFulSize=" + successful.size());
-            channel.sendTransaction(successful).get(120, TimeUnit.SECONDS);
+            channel.sendTransaction(successful,createTransactionOptions() //提交事务
+                    .userContext(hfUser).nOfEvents(Channel.NOfEvents.createNoEvents())).get(120, TimeUnit.SECONDS);
             return BaseChainCodeResponse.success(1, "执行交易成功");
         } catch (Exception e) {
             log.error(userName + "执行交易失败，chainCodeName=" + chainCodeName, e);
@@ -295,10 +296,11 @@ public class ChainCodeJavaImpl implements IChainCodeInterface {
         return client;
     }
 
-    private Channel getOrCreateChannel(ChainCodeUser peerAdmin, HFClient client) throws InvalidArgumentException, IOException, TransactionException, ProposalException {
+    private Channel getOrCreateChannel(ChainCodeUser peerAdmin, HFClient client) throws Exception {
         try {
             String channelName = config.getProperty("channel.name");
             Channel channel = client.getChannel(channelName);
+            File channelBitFile = new File(".temp/" + channelName + ".channelBit");
             if (channel == null) {
                 //查询 peer是否存在channel
                 JSONArray peers = JSONObject.parseArray(config.getProperty("channel.peers"));
@@ -307,7 +309,10 @@ public class ChainCodeJavaImpl implements IChainCodeInterface {
                     Peer tempPeer = client.newPeer(peer.getString("name"), peer.getString("grpcUrl"), null);
                     Set<String> channels = client.queryChannels(tempPeer);
                     if (!CollectionUtils.isEmpty(channels) && !channels.add(channelName)) {
-                        return client.getChannel(channelName);
+                        //尝试从redis获取channel
+                        byte[] bits = FileUtils.readFileToByteArray(channelBitFile);
+                        return client.deSerializeChannel(bits).initialize();
+                        //return client.newChannel(channelName);
                     }
                 }
                 //设置order
@@ -315,6 +320,7 @@ public class ChainCodeJavaImpl implements IChainCodeInterface {
                 Orderer orderer = client.newOrderer(order.getString("name"), order.getString("grpcUrl"), null);
                 ChannelConfiguration channelConfiguration = new ChannelConfiguration(new File(config.getProperty("channel.txFilePath")));
                 channel = client.newChannel(channelName, orderer, channelConfiguration, client.getChannelConfigurationSignature(channelConfiguration, peerAdmin));
+
                 //设置peers
                 for (int i = 0; i < peers.size(); i++) {
                     JSONObject peer = peers.getJSONObject(i);
@@ -329,6 +335,12 @@ public class ChainCodeJavaImpl implements IChainCodeInterface {
                     channel.addEventHub(tempEventHub);
                 }
             }
+
+
+            byte[] serializedChannelBytes = channel.serializeChannel();
+            channel.shutdown(true);
+            FileUtils.writeByteArrayToFile(channelBitFile, serializedChannelBytes);
+            channel=client.deSerializeChannel(serializedChannelBytes);
             log.info("获取channel成功");
             return channel.isInitialized() ? channel : channel.initialize();
         } catch (Exception e) {

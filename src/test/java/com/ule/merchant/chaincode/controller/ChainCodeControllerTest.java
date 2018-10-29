@@ -78,7 +78,7 @@ public class ChainCodeControllerTest {
         request.setMethodName("addOrUpdate");
         request.setParams(new String[]{"b", "b001"});
         request.setUserName("sadfsdfaa");
-        request.setPassword("PRObVfTrxXAz");
+        request.setPassword("cwoZrpTKeIss");
         request.setMspId("Org1MSP");
 
 
@@ -89,13 +89,13 @@ public class ChainCodeControllerTest {
     @Test
     public void queryByChainCode() {
         SendChainCodeRequest request = new SendChainCodeRequest();
-        request.setChainCodeName("dsfafds");
+        request.setChainCodeName("uleMerchantChainCode");
         request.setChainCodeType("GO_LANG");
         request.setChainCodeVersion("1");
         request.setMethodName("query");
         request.setParams(new String[]{"b"});
-        request.setUserName("sadfsdfa");
-        request.setPassword(password);
+        request.setUserName("sadfsdfaa");
+        request.setPassword("cwoZrpTKeIss");
         request.setMspId("Org1MSP");
 
 
