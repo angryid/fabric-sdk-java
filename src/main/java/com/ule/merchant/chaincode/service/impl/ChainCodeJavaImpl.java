@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
+import java.nio.file.Paths;
 import java.security.PrivateKey;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -83,7 +84,7 @@ public class ChainCodeJavaImpl implements IChainCodeInterface {
     public BaseChainCodeResponse deployAndInitChaincodeIfRequired(DeployAndInitChainCodeRequest request) {
         String chainCodeName = request.getChainCodeName();
         String chainCodeVersion = request.getChainCodeVersion();
-        InputStream chainCodeInputStream = request.getChainCodeInputStream();
+        String chainCodeSourceLocation = request.getChainCodeSourceLocation();
         String chainCodeType = request.getChainCodeType();
         String chainCodePath = request.getChainCodePath();
         String[] initParams = request.getInitParams();
@@ -112,7 +113,7 @@ public class ChainCodeJavaImpl implements IChainCodeInterface {
             InstallProposalRequest ipr = client.newInstallProposalRequest();
             ipr.setProposalWaitTime(waitTime);
             ipr.setChaincodeID(ccid);
-            ipr.setChaincodeInputStream(chainCodeInputStream);
+            ipr.setChaincodeSourceLocation(Paths.get(chainCodeSourceLocation).toFile());
 
             TransactionRequest.Type type = TransactionRequest.Type.valueOf(chainCodeType.toUpperCase());
             if (type == TransactionRequest.Type.GO_LANG)
@@ -299,13 +300,22 @@ public class ChainCodeJavaImpl implements IChainCodeInterface {
             String channelName = config.getProperty("channel.name");
             Channel channel = client.getChannel(channelName);
             if (channel == null) {
+                //查询 peer是否存在channel
+                JSONArray peers = JSONObject.parseArray(config.getProperty("channel.peers"));
+                for (int i = 0; i < peers.size(); i++) {
+                    JSONObject peer = peers.getJSONObject(i);
+                    Peer tempPeer = client.newPeer(peer.getString("name"), peer.getString("grpcUrl"), null);
+                    Set<String> channels = client.queryChannels(tempPeer);
+                    if (!CollectionUtils.isEmpty(channels) && !channels.add(channelName)) {
+                        return client.getChannel(channelName);
+                    }
+                }
                 //设置order
                 JSONObject order = JSONObject.parseObject(config.getProperty("channel.order"));
                 Orderer orderer = client.newOrderer(order.getString("name"), order.getString("grpcUrl"), null);
                 ChannelConfiguration channelConfiguration = new ChannelConfiguration(new File(config.getProperty("channel.txFilePath")));
                 channel = client.newChannel(channelName, orderer, channelConfiguration, client.getChannelConfigurationSignature(channelConfiguration, peerAdmin));
                 //设置peers
-                JSONArray peers = JSONObject.parseArray(config.getProperty("channel.peers"));
                 for (int i = 0; i < peers.size(); i++) {
                     JSONObject peer = peers.getJSONObject(i);
                     Peer tempPeer = client.newPeer(peer.getString("name"), peer.getString("grpcUrl"), null);

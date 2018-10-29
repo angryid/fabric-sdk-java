@@ -15,8 +15,8 @@ public class DeployAndInitChainCodeRequest implements Serializable {
     @NotBlank
     private String chainCodeType;
     private String chainCodePath;
-    @NotNull
-    private InputStream chainCodeInputStream;
+    @NotBlank
+    private String chainCodeSourceLocation;
     @NotEmpty
     private String[] initParams;
     @NotNull
@@ -54,12 +54,12 @@ public class DeployAndInitChainCodeRequest implements Serializable {
         this.chainCodePath = chainCodePath;
     }
 
-    public InputStream getChainCodeInputStream() {
-        return chainCodeInputStream;
+    public String getChainCodeSourceLocation() {
+        return chainCodeSourceLocation;
     }
 
-    public void setChainCodeInputStream(InputStream chainCodeInputStream) {
-        this.chainCodeInputStream = chainCodeInputStream;
+    public void setChainCodeSourceLocation(String chainCodeSourceLocation) {
+        this.chainCodeSourceLocation = chainCodeSourceLocation;
     }
 
     public String[] getInitParams() {

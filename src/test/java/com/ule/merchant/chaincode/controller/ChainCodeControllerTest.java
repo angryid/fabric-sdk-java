@@ -34,7 +34,7 @@ public class ChainCodeControllerTest {
     @Test
     public void registerUserIfRequired() {
         RegisterUserChainCodeRequest request = new RegisterUserChainCodeRequest();
-        request.setUserName("sadfsdfaa");//MxxHSDNcmOnM
+        request.setUserName("sadfsdfaa");//PRObVfTrxXAz
         request.setAffiliation("org1.department1");
         request.setMspId("Org1MSP");
 
@@ -72,13 +72,13 @@ public class ChainCodeControllerTest {
     @Test
     public void sendTransaction() {
         SendChainCodeRequest request = new SendChainCodeRequest();
-        request.setChainCodeName("dsfafds");
+        request.setChainCodeName("uleMerchantChainCode");
         request.setChainCodeType("GO_LANG");
         request.setChainCodeVersion("1");
         request.setMethodName("addOrUpdate");
         request.setParams(new String[]{"b", "b001"});
-        request.setUserName("sadfsdfa");
-        request.setPassword(password);
+        request.setUserName("sadfsdfaa");
+        request.setPassword("PRObVfTrxXAz");
         request.setMspId("Org1MSP");
 
 
