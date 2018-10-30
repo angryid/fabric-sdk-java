@@ -34,7 +34,7 @@ public interface IChainCodeInterface {
     BaseChainCodeResponse queryByChainCode(SendChainCodeRequest request);
 
     //保存merchantInfo
-    BaseChainCodeResponse putMerchantInfo(PutMerchantInfoRequest request) throws IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException, MalformedURLException, InvalidArgumentException, org.hyperledger.fabric.sdk.exception.InvalidArgumentException, CryptoException, ClassNotFoundException;
+    BaseChainCodeResponse putMerchantInfo(PutMerchantInfoRequest request);
 
     //查询merchantInfo
     BaseChainCodeResponse getMerchantInfo(String merchantId);
