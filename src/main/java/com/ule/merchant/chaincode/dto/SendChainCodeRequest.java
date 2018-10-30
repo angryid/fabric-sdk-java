@@ -15,6 +15,7 @@ public class SendChainCodeRequest{
     private String chainCodeName;
     @NotBlank
     private String chainCodeVersion;
+    private String chainCodePath;
     @NotBlank
     private String chainCodeType;
     @NotBlank
@@ -85,5 +86,13 @@ public class SendChainCodeRequest{
 
     public void setParams(String[] params) {
         this.params = params;
+    }
+
+    public String getChainCodePath() {
+        return chainCodePath;
+    }
+
+    public void setChainCodePath(String chainCodePath) {
+        this.chainCodePath = chainCodePath;
     }
 }

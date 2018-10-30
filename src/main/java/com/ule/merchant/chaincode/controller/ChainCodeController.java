@@ -1,16 +1,10 @@
 package com.ule.merchant.chaincode.controller;
 
-import com.ule.merchant.chaincode.dto.BaseChainCodeResponse;
-import com.ule.merchant.chaincode.dto.DeployAndInitChainCodeRequest;
-import com.ule.merchant.chaincode.dto.RegisterUserChainCodeRequest;
-import com.ule.merchant.chaincode.dto.SendChainCodeRequest;
+import com.ule.merchant.chaincode.dto.*;
 import com.ule.merchant.chaincode.service.IChainCodeInterface;
 import org.hyperledger.fabric.sdk.helper.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.io.ByteArrayInputStream;
@@ -62,5 +56,16 @@ public class ChainCodeController {
     public BaseChainCodeResponse queryByChainCode(@Valid @RequestBody SendChainCodeRequest request) {
         return chainCodeInterface.queryByChainCode(request);
     }
+
+    @PostMapping("/putMerchantInfo")
+    public BaseChainCodeResponse putMerchantInfo(@Valid @RequestBody PutMerchantInfoRequest request){
+        return chainCodeInterface.putMerchantInfo(request);
+    }
+
+    @GetMapping("/getMerchantInfo/{merchantId}")
+    public BaseChainCodeResponse getMerchantInfo(@PathVariable String merchantId){
+        return chainCodeInterface.getMerchantInfo(merchantId);
+    }
+
 
 }

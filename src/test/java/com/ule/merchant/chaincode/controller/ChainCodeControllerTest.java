@@ -34,7 +34,7 @@ public class ChainCodeControllerTest {
     @Test
     public void registerUserIfRequired() {
         RegisterUserChainCodeRequest request = new RegisterUserChainCodeRequest();
-        request.setUserName("sadfsdfaa");//PRObVfTrxXAz
+        request.setUserName("user1");//smBqmlQfOGUr
         request.setAffiliation("org1.department1");
         request.setMspId("Org1MSP");
 
@@ -74,11 +74,12 @@ public class ChainCodeControllerTest {
         SendChainCodeRequest request = new SendChainCodeRequest();
         request.setChainCodeName("uleMerchantChainCode");
         request.setChainCodeType("GO_LANG");
+        request.setChainCodePath("ule.com/gocc");
         request.setChainCodeVersion("1");
         request.setMethodName("addOrUpdate");
         request.setParams(new String[]{"b", "b001"});
-        request.setUserName("sadfsdfaa");
-        request.setPassword("cwoZrpTKeIss");
+        request.setUserName("user1");
+        request.setPassword("smBqmlQfOGUr");
         request.setMspId("Org1MSP");
 
 
@@ -91,11 +92,12 @@ public class ChainCodeControllerTest {
         SendChainCodeRequest request = new SendChainCodeRequest();
         request.setChainCodeName("uleMerchantChainCode");
         request.setChainCodeType("GO_LANG");
+        request.setChainCodePath("ule.com/gocc");
         request.setChainCodeVersion("1");
         request.setMethodName("query");
         request.setParams(new String[]{"b"});
-        request.setUserName("sadfsdfaa");
-        request.setPassword("cwoZrpTKeIss");
+        request.setUserName("user1");
+        request.setPassword("SolyhqlrDCrw");
         request.setMspId("Org1MSP");
 
 

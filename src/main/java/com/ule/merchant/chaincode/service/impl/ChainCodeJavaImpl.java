@@ -2,13 +2,11 @@ package com.ule.merchant.chaincode.service.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.ule.merchant.chaincode.dto.BaseChainCodeResponse;
-import com.ule.merchant.chaincode.dto.DeployAndInitChainCodeRequest;
-import com.ule.merchant.chaincode.dto.RegisterUserChainCodeRequest;
-import com.ule.merchant.chaincode.dto.SendChainCodeRequest;
+import com.ule.merchant.chaincode.dto.*;
 import com.ule.merchant.chaincode.model.ChainCodeUser;
 import com.ule.merchant.chaincode.service.IChainCodeInterface;
 import com.ule.merchant.chaincode.util.PropertyUtil;
+import com.ule.merchant.chaincode.util.SerializeUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,8 +14,6 @@ import org.hyperledger.fabric.protos.peer.Query;
 import org.hyperledger.fabric.sdk.*;
 import org.hyperledger.fabric.sdk.exception.CryptoException;
 import org.hyperledger.fabric.sdk.exception.InvalidArgumentException;
-import org.hyperledger.fabric.sdk.exception.ProposalException;
-import org.hyperledger.fabric.sdk.exception.TransactionException;
 import org.hyperledger.fabric.sdk.helper.Config;
 import org.hyperledger.fabric.sdk.security.CryptoSuite;
 import org.hyperledger.fabric_ca.sdk.HFCAClient;
@@ -25,6 +21,7 @@ import org.hyperledger.fabric_ca.sdk.RegistrationRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
@@ -95,7 +92,10 @@ public class ChainCodeJavaImpl implements IChainCodeInterface {
             HFClient client = getClient(peerAdmin);
             Channel channel = getOrCreateChannel(peerAdmin, client);
 
-            ChaincodeID ccid = ChaincodeID.newBuilder().setName(chainCodeName).setVersion(chainCodeVersion).build();
+            ChaincodeID.Builder builder = ChaincodeID.newBuilder().setName(chainCodeName).setVersion(chainCodeVersion);
+            if (!StringUtils.isEmpty(chainCodePath))
+                builder.setPath(chainCodePath);
+            ChaincodeID ccid = builder.build();
             //检测所有peer节点是否已经安装过链码
             for (Peer peer : channel.getPeers()) {
                 List<Query.ChaincodeInfo> ccInfoList = client.queryInstalledChaincodes(peer);
@@ -116,8 +116,6 @@ public class ChainCodeJavaImpl implements IChainCodeInterface {
             ipr.setChaincodeSourceLocation(Paths.get(chainCodeSourceLocation).toFile());
 
             TransactionRequest.Type type = TransactionRequest.Type.valueOf(chainCodeType.toUpperCase());
-            if (type == TransactionRequest.Type.GO_LANG)
-                ipr.setChaincodePath(chainCodePath);
             ipr.setChaincodeLanguage(type);
 
             Collection<ProposalResponse> ires = client.sendInstallProposal(ipr, channel.getPeers());
@@ -177,6 +175,7 @@ public class ChainCodeJavaImpl implements IChainCodeInterface {
         String mspId = request.getMspId();
         String chainCodeName = request.getChainCodeName();
         String chainCodeVersion = request.getChainCodeVersion();
+        String chainCodePath = request.getChainCodePath();
         String chainCodeType = request.getChainCodeType();
         String methodName = request.getMethodName();
         String[] params = request.getParams();
@@ -189,7 +188,10 @@ public class ChainCodeJavaImpl implements IChainCodeInterface {
             ChainCodeUser hfUser = new ChainCodeUser(userName, mspId, getCAClient().enroll(userName, password));
             client.setUserContext(hfUser);
 
-            ChaincodeID ccid = ChaincodeID.newBuilder().setName(chainCodeName).setVersion(chainCodeVersion).build();
+            ChaincodeID.Builder builder = ChaincodeID.newBuilder().setName(chainCodeName).setVersion(chainCodeVersion);
+            if (!StringUtils.isEmpty(chainCodePath))
+                builder.setPath(chainCodePath);
+            ChaincodeID ccid = builder.build();
 
             TransactionProposalRequest transactionProposalRequest = client.newTransactionProposalRequest();
             transactionProposalRequest.setChaincodeID(ccid);
@@ -213,9 +215,8 @@ public class ChainCodeJavaImpl implements IChainCodeInterface {
                     successful.add(response);
                 }
             }
+            channel.sendTransaction(successful).get(120, TimeUnit.SECONDS);
             log.info("执行交易成功，successFulSize=" + successful.size());
-            channel.sendTransaction(successful,createTransactionOptions() //提交事务
-                    .userContext(hfUser).nOfEvents(Channel.NOfEvents.createNoEvents())).get(120, TimeUnit.SECONDS);
             return BaseChainCodeResponse.success(1, "执行交易成功");
         } catch (Exception e) {
             log.error(userName + "执行交易失败，chainCodeName=" + chainCodeName, e);
@@ -230,6 +231,7 @@ public class ChainCodeJavaImpl implements IChainCodeInterface {
         String mspId = request.getMspId();
         String chainCodeName = request.getChainCodeName();
         String chainCodeVersion = request.getChainCodeVersion();
+        String chainCodePath = request.getChainCodePath();
         String chainCodeType = request.getChainCodeType();
         String methodName = request.getMethodName();
         String[] params = request.getParams();
@@ -242,7 +244,10 @@ public class ChainCodeJavaImpl implements IChainCodeInterface {
             ChainCodeUser hfUser = new ChainCodeUser(userName, mspId, getCAClient().enroll(userName, password));
             client.setUserContext(hfUser);
 
-            ChaincodeID ccid = ChaincodeID.newBuilder().setName(chainCodeName).setVersion(chainCodeVersion).build();
+            ChaincodeID.Builder builder = ChaincodeID.newBuilder().setName(chainCodeName).setVersion(chainCodeVersion);
+            if (!StringUtils.isEmpty(chainCodePath))
+                builder.setPath(chainCodePath);
+            ChaincodeID ccid = builder.build();
 
             //查询合约信息
             QueryByChaincodeRequest queryByChaincodeRequest = client.newQueryProposalRequest();
@@ -267,6 +272,16 @@ public class ChainCodeJavaImpl implements IChainCodeInterface {
             log.error(userName + "查询chainCode异常，chainCodeName=" + chainCodeName, e);
             return BaseChainCodeResponse.error(-1, e.getMessage());
         }
+    }
+
+    @Override
+    public BaseChainCodeResponse putMerchantInfo(PutMerchantInfoRequest request) throws IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException, MalformedURLException, org.hyperledger.fabric_ca.sdk.exception.InvalidArgumentException, InvalidArgumentException, CryptoException, ClassNotFoundException {
+        return null;
+    }
+
+    @Override
+    public BaseChainCodeResponse getMerchantInfo(String merchantId) {
+        return null;
     }
 
 
@@ -299,22 +314,12 @@ public class ChainCodeJavaImpl implements IChainCodeInterface {
     private Channel getOrCreateChannel(ChainCodeUser peerAdmin, HFClient client) throws Exception {
         try {
             String channelName = config.getProperty("channel.name");
-            Channel channel = client.getChannel(channelName);
+            Channel channel;
             File channelBitFile = new File(".temp/" + channelName + ".channelBit");
-            if (channel == null) {
+            if (!channelBitFile.exists()) {
                 //查询 peer是否存在channel
                 JSONArray peers = JSONObject.parseArray(config.getProperty("channel.peers"));
-                for (int i = 0; i < peers.size(); i++) {
-                    JSONObject peer = peers.getJSONObject(i);
-                    Peer tempPeer = client.newPeer(peer.getString("name"), peer.getString("grpcUrl"), null);
-                    Set<String> channels = client.queryChannels(tempPeer);
-                    if (!CollectionUtils.isEmpty(channels) && !channels.add(channelName)) {
-                        //尝试从redis获取channel
-                        byte[] bits = FileUtils.readFileToByteArray(channelBitFile);
-                        return client.deSerializeChannel(bits).initialize();
-                        //return client.newChannel(channelName);
-                    }
-                }
+
                 //设置order
                 JSONObject order = JSONObject.parseObject(config.getProperty("channel.order"));
                 Orderer orderer = client.newOrderer(order.getString("name"), order.getString("grpcUrl"), null);
@@ -334,15 +339,13 @@ public class ChainCodeJavaImpl implements IChainCodeInterface {
                     EventHub tempEventHub = client.newEventHub(eventHub.getString("name"), eventHub.getString("grpcUrl"), null);
                     channel.addEventHub(tempEventHub);
                 }
+                byte[] serializedChannelBytes = channel.serializeChannel();
+                channel.shutdown(true);
+                FileUtils.writeByteArrayToFile(channelBitFile, serializedChannelBytes);
             }
-
-
-            byte[] serializedChannelBytes = channel.serializeChannel();
-            channel.shutdown(true);
-            FileUtils.writeByteArrayToFile(channelBitFile, serializedChannelBytes);
-            channel=client.deSerializeChannel(serializedChannelBytes);
+            byte[] bits = FileUtils.readFileToByteArray(channelBitFile);
             log.info("获取channel成功");
-            return channel.isInitialized() ? channel : channel.initialize();
+            return client.deSerializeChannel(bits).initialize();
         } catch (Exception e) {
             log.error("获取或构造channel异常", e);
             throw e;

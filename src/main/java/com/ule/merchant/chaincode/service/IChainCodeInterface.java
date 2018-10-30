@@ -1,9 +1,11 @@
 package com.ule.merchant.chaincode.service;
 
-import com.ule.merchant.chaincode.dto.BaseChainCodeResponse;
-import com.ule.merchant.chaincode.dto.DeployAndInitChainCodeRequest;
-import com.ule.merchant.chaincode.dto.RegisterUserChainCodeRequest;
-import com.ule.merchant.chaincode.dto.SendChainCodeRequest;
+import com.ule.merchant.chaincode.dto.*;
+import org.hyperledger.fabric.sdk.exception.CryptoException;
+import org.hyperledger.fabric_ca.sdk.exception.InvalidArgumentException;
+
+import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
 
 /**
  * 尽量封装更加通用的接口，以方便调用，其中内置了admin用户，账号密码：{"admin", "adminpw"}
@@ -30,4 +32,11 @@ public interface IChainCodeInterface {
 
     //查询chaincode
     BaseChainCodeResponse queryByChainCode(SendChainCodeRequest request);
+
+    //保存merchantInfo
+    BaseChainCodeResponse putMerchantInfo(PutMerchantInfoRequest request) throws IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException, MalformedURLException, InvalidArgumentException, org.hyperledger.fabric.sdk.exception.InvalidArgumentException, CryptoException, ClassNotFoundException;
+
+    //查询merchantInfo
+    BaseChainCodeResponse getMerchantInfo(String merchantId);
+
 }
