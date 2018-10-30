@@ -275,7 +275,7 @@ public class ChainCodeJavaImpl implements IChainCodeInterface {
     }
 
     @Override
-    public BaseChainCodeResponse putMerchantInfo(PutMerchantInfoRequest request) throws IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException, MalformedURLException, org.hyperledger.fabric_ca.sdk.exception.InvalidArgumentException, InvalidArgumentException, CryptoException, ClassNotFoundException {
+    public BaseChainCodeResponse putMerchantInfo(PutMerchantInfoRequest request) {
         return null;
     }
 
