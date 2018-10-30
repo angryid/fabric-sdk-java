@@ -79,7 +79,7 @@ public class ChainCodeControllerTest {
         request.setMethodName("addOrUpdate");
         request.setParams(new String[]{"b", "b001"});
         request.setUserName("user1");
-        request.setPassword("smBqmlQfOGUr");
+        request.setPassword("CskIXXQrjnAi");
         request.setMspId("Org1MSP");
 
 
