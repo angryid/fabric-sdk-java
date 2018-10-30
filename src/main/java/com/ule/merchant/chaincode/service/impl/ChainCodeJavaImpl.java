@@ -2,11 +2,13 @@ package com.ule.merchant.chaincode.service.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.ule.merchant.chaincode.dto.*;
+import com.ule.merchant.chaincode.dto.BaseChainCodeResponse;
+import com.ule.merchant.chaincode.dto.DeployAndInitChainCodeRequest;
+import com.ule.merchant.chaincode.dto.RegisterUserChainCodeRequest;
+import com.ule.merchant.chaincode.dto.SendChainCodeRequest;
 import com.ule.merchant.chaincode.model.ChainCodeUser;
 import com.ule.merchant.chaincode.service.IChainCodeInterface;
 import com.ule.merchant.chaincode.util.PropertyUtil;
-import com.ule.merchant.chaincode.util.SerializeUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,7 +28,6 @@ import org.springframework.util.StringUtils;
 import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.nio.file.Paths;
@@ -85,7 +86,7 @@ public class ChainCodeJavaImpl implements IChainCodeInterface {
         String chainCodeType = request.getChainCodeType();
         String chainCodePath = request.getChainCodePath();
         String[] initParams = request.getInitParams();
-        InputStream chaincodeendorsementInputStream = request.getChaincodeendorsementpolicy();
+        String chaincodeendorsementInputStream = request.getChaincodeendorsementpolicy();
         try {
             log.info("部署和实例化链码开始 chainCodeName=" + chainCodeName);
             ChainCodeUser peerAdmin = getPeerAdmin();
@@ -143,7 +144,8 @@ public class ChainCodeJavaImpl implements IChainCodeInterface {
             instantiateProposalRequest.setTransientMap(tm);
 
             ChaincodeEndorsementPolicy chaincodeEndorsementPolicy = new ChaincodeEndorsementPolicy();
-            chaincodeEndorsementPolicy.fromStream(chaincodeendorsementInputStream);
+            //chaincodeEndorsementPolicy.fromStream(chaincodeendorsementInputStream);
+            chaincodeEndorsementPolicy.fromYamlFile(new File(chaincodeendorsementInputStream));
             instantiateProposalRequest.setChaincodeEndorsementPolicy(chaincodeEndorsementPolicy);
 
             Collection<ProposalResponse> sip = channel.sendInstantiationProposal(instantiateProposalRequest, channel.getPeers());
@@ -273,17 +275,6 @@ public class ChainCodeJavaImpl implements IChainCodeInterface {
             return BaseChainCodeResponse.error(-1, e.getMessage());
         }
     }
-
-    @Override
-    public BaseChainCodeResponse putMerchantInfo(PutMerchantInfoRequest request) {
-        return null;
-    }
-
-    @Override
-    public BaseChainCodeResponse getMerchantInfo(String merchantId) {
-        return null;
-    }
-
 
     private ChainCodeUser getPeerAdmin() throws IOException {
         try {

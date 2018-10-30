@@ -3,7 +3,6 @@ package com.ule.merchant.chaincode.dto;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.io.InputStream;
 import java.io.Serializable;
 
 public class DeployAndInitChainCodeRequest implements Serializable {
@@ -20,7 +19,7 @@ public class DeployAndInitChainCodeRequest implements Serializable {
     @NotEmpty
     private String[] initParams;
     @NotNull
-    private InputStream chaincodeendorsementpolicy;
+    private String chaincodeendorsementpolicy;
 
     public String getChainCodeName() {
         return chainCodeName;
@@ -70,11 +69,11 @@ public class DeployAndInitChainCodeRequest implements Serializable {
         this.initParams = initParams;
     }
 
-    public InputStream getChaincodeendorsementpolicy() {
+    public String getChaincodeendorsementpolicy() {
         return chaincodeendorsementpolicy;
     }
 
-    public void setChaincodeendorsementpolicy(InputStream chaincodeendorsementpolicy) {
+    public void setChaincodeendorsementpolicy(String chaincodeendorsementpolicy) {
         this.chaincodeendorsementpolicy = chaincodeendorsementpolicy;
     }
 }

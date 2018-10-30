@@ -72,7 +72,7 @@ public class ChainCodeJavaImplTest {
             request.setChainCodePath("ule.com/gocc");
             request.setChainCodeType("GO_LANG");
             request.setChainCodeVersion("1");
-            request.setChaincodeendorsementpolicy(new FileInputStream(new File("chaincode/chaincodeendorsementpolicy.yaml")));
+            request.setChaincodeendorsementpolicy("chaincode/chaincodeendorsementpolicy.yaml");
             request.setChainCodeSourceLocation("chaincode/ulemerchantchaincode");
             request.setInitParams(new String[]{});
 
@@ -82,7 +82,7 @@ public class ChainCodeJavaImplTest {
             String chainCodeType = request.getChainCodeType();
             String chainCodePath = request.getChainCodePath();
             String[] initParams = request.getInitParams();
-            InputStream chaincodeendorsementInputStream = request.getChaincodeendorsementpolicy();
+            String chaincodeendorsementInputStream = request.getChaincodeendorsementpolicy();
             try {
                 log.info("部署和实例化链码开始 chainCodeName=" + chainCodeName);
 
@@ -139,7 +139,8 @@ public class ChainCodeJavaImplTest {
                 instantiateProposalRequest.setTransientMap(tm);
 
                 ChaincodeEndorsementPolicy chaincodeEndorsementPolicy = new ChaincodeEndorsementPolicy();
-                chaincodeEndorsementPolicy.fromStream(chaincodeendorsementInputStream);
+                //chaincodeEndorsementPolicy.fromStream(chaincodeendorsementInputStream);
+                chaincodeEndorsementPolicy.fromYamlFile(new File(chaincodeendorsementInputStream));
                 instantiateProposalRequest.setChaincodeEndorsementPolicy(chaincodeEndorsementPolicy);
 
                 Collection<ProposalResponse> sip = channel.sendInstantiationProposal(instantiateProposalRequest, channel.getPeers());

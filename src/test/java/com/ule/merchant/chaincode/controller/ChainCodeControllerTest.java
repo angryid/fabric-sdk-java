@@ -34,7 +34,7 @@ public class ChainCodeControllerTest {
     @Test
     public void registerUserIfRequired() {
         RegisterUserChainCodeRequest request = new RegisterUserChainCodeRequest();
-        request.setUserName("user1");//smBqmlQfOGUr
+        request.setUserName("user1");//YfyrTqztVViS
         request.setAffiliation("org1.department1");
         request.setMspId("Org1MSP");
 
@@ -77,9 +77,9 @@ public class ChainCodeControllerTest {
         request.setChainCodePath("ule.com/gocc");
         request.setChainCodeVersion("1");
         request.setMethodName("addOrUpdate");
-        request.setParams(new String[]{"b", "b001"});
+        request.setParams(new String[]{"b", "b002"});
         request.setUserName("user1");
-        request.setPassword("CskIXXQrjnAi");
+        request.setPassword("YfyrTqztVViS");
         request.setMspId("Org1MSP");
 
 
@@ -97,7 +97,7 @@ public class ChainCodeControllerTest {
         request.setMethodName("query");
         request.setParams(new String[]{"b"});
         request.setUserName("user1");
-        request.setPassword("SolyhqlrDCrw");
+        request.setPassword("YfyrTqztVViS");
         request.setMspId("Org1MSP");
 
 
