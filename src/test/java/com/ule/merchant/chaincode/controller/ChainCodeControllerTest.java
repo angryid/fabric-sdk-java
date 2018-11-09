@@ -105,4 +105,22 @@ public class ChainCodeControllerTest {
         System.out.println("查询交易响应 res=" + JSON.toJSONString(res));
     }
 
+    @Test
+    public void queryHistoryByChainCode() {
+        SendChainCodeRequest request = new SendChainCodeRequest();
+        request.setChainCodeName("uleMerchantChainCode");
+        request.setChainCodeType("GO_LANG");
+        request.setChainCodePath("ule.com/gocc");
+        request.setChainCodeVersion("1");
+        request.setMethodName("queryHistory");
+        request.setParams(new String[]{"b"});
+        request.setUserName("user1");
+        request.setPassword("YfyrTqztVViS");
+        request.setMspId("Org1MSP");
+
+
+        BaseChainCodeResponse res = restTemplate.postForObject(host + "/queryByChainCode", request, BaseChainCodeResponse.class);
+        System.out.println("查询交易响应 res=" + JSON.toJSONString(res));
+    }
+
 }

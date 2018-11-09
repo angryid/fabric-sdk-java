@@ -21,6 +21,9 @@ import (
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	pb "github.com/hyperledger/fabric/protos/peer"
+	"bytes"
+	"time"
+	"strconv"
 )
 
 var logger = shim.NewLogger("ule_cc0")
@@ -73,8 +76,12 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	if function == "query" {
 		return t.query(stub, args)
 	}
-	logger.Errorf("未知的方法名，目前只支持addOrUpdate或query. 但是收到的方法名为: %v", args[0])
-	return shim.Error(fmt.Sprintf("未知的方法名，目前只支持addOrUpdate或query. 但是收到的方法名为: %v", args[0]))
+	//查询交易历史
+	if function == "queryHistory" {
+		return t.queryHistory(stub, args)
+	}
+	logger.Errorf("未知的方法名，目前只支持addOrUpdate或query,queryHistory. 但是收到的方法名为: %v", args[0])
+	return shim.Error(fmt.Sprintf("未知的方法名，目前只支持addOrUpdate或query,queryHistory. 但是收到的方法名为: %v", args[0]))
 }
 
 //添加或更新合约
@@ -116,6 +123,52 @@ func (t *SimpleChaincode) query(stub shim.ChaincodeStubInterface, args []string)
 		return shim.Error(fmt.Sprintf("获取合约为空，merchantId:%s", merchantId))
 	}
 	return shim.Success(contractByte)
+}
+
+// 查询历史合约
+func (t *SimpleChaincode) queryHistory(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	var merchantId string // Entities
+	var err error
+	var result bytes.Buffer
+
+	if len(args) != 1 {
+		return shim.Error("无效的参数")
+	}
+	merchantId = args[0]
+	// 从账本获取 HistoryQueryIteratorInterface
+	contractHistoryIterator, err := stub.GetHistoryForKey(merchantId)
+	if err != nil {
+		return shim.Error(fmt.Sprintf("获取账本历史数据异常，merchantId:%s，error:%s", merchantId, err))
+	}
+	if contractHistoryIterator == nil || !contractHistoryIterator.HasNext() {
+		return shim.Error(fmt.Sprintf("获取账本历史数据为空，merchantId:%s", merchantId))
+	}
+
+	result.WriteString("[")
+	for it := contractHistoryIterator; it.HasNext(); {
+		history, err := it.Next()
+		if err != nil {
+			result.WriteString("{\"txId\":")
+			result.WriteString("\"")
+			result.WriteString(history.TxId)
+			result.WriteString("\"")
+			result.WriteString(", \"value\":")
+			result.WriteString("\"")
+			result.WriteString(string(history.GetValue()))
+			result.WriteString("\"")
+			result.WriteString(", \"timestamp\":")
+			result.WriteString("\"")
+			result.WriteString(time.Unix(history.Timestamp.Seconds, int64(history.Timestamp.Nanos)).String())
+			result.WriteString("\"")
+			result.WriteString(", \"isDelete\":")
+			result.WriteString("\"")
+			result.WriteString(strconv.FormatBool(history.IsDelete))
+			result.WriteString("\"}")
+		}
+	}
+	result.WriteString("]")
+
+	return shim.Success(result.Bytes())
 }
 
 func main() {
